@@ -81,6 +81,37 @@
  */
 
 
+#include <Adafruit_NeoPixel.h>
+
+#define PIN_HAPPY 6
+
+// Parameter 1 = number of pixels in strip
+// Parameter 2 = Arduino pin number (most are valid)
+// Parameter 3 = pixel type flags, add together as needed:
+//   NEO_KHZ800  800 KHz bitstream (most NeoPixel products w/WS2812 LEDs)
+//   NEO_KHZ400  400 KHz (classic 'v1' (not v2) FLORA pixels, WS2811 drivers)
+//   NEO_GRB     Pixels are wired for GRB bitstream (most NeoPixel products)
+//   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
+Adafruit_NeoPixel stripHappy = Adafruit_NeoPixel(4, PIN_HAPPY, NEO_GRB + NEO_KHZ800);
+
+// IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
+// pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
+// and minimize distance between Arduino and first pixel.  Avoid connecting
+// on a live circuit...if you must, connect GND first.
+
+
+#include "Wire.h"
+#define DS3231_I2C_ADDRESS 0x68
+// Convert normal decimal numbers to binary coded decimal
+byte decToBcd(byte val)
+{
+  return( (val/10*16) + (val%10) );
+}
+// Convert binary coded decimal to normal decimal numbers
+byte bcdToDec(byte val)
+{
+  return( (val/16*10) + (val%16) );
+}
 
 
 
@@ -140,7 +171,9 @@
 
 
 
-int  hour=9, minute=30, second=00;
+//int  hour=9, minute=30, second=00;
+
+byte second, minute, hour, dayOfWeek, dayOfMonth, month, year;
 
 static unsigned long msTick =0;  // the number of Millisecond Ticks since we last 
 
@@ -175,9 +208,16 @@ int PWMPin = 9;
 void setup()
 
 {
+  // neopixel setup
+  stripHappy.begin();
+  stripHappy.show(); // Initialize all pixels to 'off'
 
   // initialise the hardware	
-
+  Wire.begin();
+  // set the initial time here:
+  // DS3231 seconds, minutes, hours, day, date, month, year
+  setDS3231time(30,50,0,5,14,5,15);
+  
   // initialize the appropriate pins as outputs:
 
   pinMode(LEDClockPin, OUTPUT); 
@@ -208,6 +248,98 @@ void setup()
 
   displaytime();        // display the current time
 
+}
+
+/*
+*  RTC Helper Functions
+*/
+void setDS3231time(byte second, byte minute, byte hour, byte dayOfWeek, byte
+dayOfMonth, byte month, byte year)
+{
+  // sets time and date data to DS3231
+  Wire.beginTransmission(DS3231_I2C_ADDRESS);
+  Wire.write(0); // set next input to start at the seconds register
+  Wire.write(decToBcd(second)); // set seconds
+  Wire.write(decToBcd(minute)); // set minutes
+  Wire.write(decToBcd(hour)); // set hours
+  Wire.write(decToBcd(dayOfWeek)); // set day of week (1=Sunday, 7=Saturday)
+  Wire.write(decToBcd(dayOfMonth)); // set date (1 to 31)
+  Wire.write(decToBcd(month)); // set month
+  Wire.write(decToBcd(year)); // set year (0 to 99)
+  Wire.endTransmission();
+}
+void readDS3231time(byte *second,
+byte *minute,
+byte *hour,
+byte *dayOfWeek,
+byte *dayOfMonth,
+byte *month,
+byte *year)
+{
+  Wire.beginTransmission(DS3231_I2C_ADDRESS);
+  Wire.write(0); // set DS3231 register pointer to 00h
+  Wire.endTransmission();
+  Wire.requestFrom(DS3231_I2C_ADDRESS, 7);
+  // request seven bytes of data from DS3231 starting from register 00h
+  *second = bcdToDec(Wire.read() & 0x7f);
+  *minute = bcdToDec(Wire.read());
+  *hour = bcdToDec(Wire.read() & 0x3f);
+  *dayOfWeek = bcdToDec(Wire.read());
+  *dayOfMonth = bcdToDec(Wire.read());
+  *month = bcdToDec(Wire.read());
+  *year = bcdToDec(Wire.read());
+}
+void displayTime()
+{
+  byte second, minute, hour, dayOfWeek, dayOfMonth, month, year;
+  // retrieve data from DS3231
+  readDS3231time(&second, &minute, &hour, &dayOfWeek, &dayOfMonth, &month,
+  &year);
+  // send it to the serial monitor
+  Serial.print(hour, DEC);
+  // convert the byte variable to a decimal number when displayed
+  Serial.print(":");
+  if (minute<10)
+  {
+    Serial.print("0");
+  }
+  Serial.print(minute, DEC);
+  Serial.print(":");
+  if (second<10)
+  {
+    Serial.print("0");
+  }
+  Serial.print(second, DEC);
+  Serial.print(" ");
+  Serial.print(dayOfMonth, DEC);
+  Serial.print("/");
+  Serial.print(month, DEC);
+  Serial.print("/");
+  Serial.print(year, DEC);
+  Serial.print(" Day of week: ");
+  switch(dayOfWeek){
+  case 1:
+    Serial.println("Sunday");
+    break;
+  case 2:
+    Serial.println("Monday");
+    break;
+  case 3:
+    Serial.println("Tuesday");
+    break;
+  case 4:
+    Serial.println("Wednesday");
+    break;
+  case 5:
+    Serial.println("Thursday");
+    break;
+  case 6:
+    Serial.println("Friday");
+    break;
+  case 7:
+    Serial.println("Saturday");
+    break;
+  }
 }
 
 
@@ -509,8 +641,24 @@ void displaytime(void){
       Serial.println("One ");
 
       break;
+      
+    case 13: 
+
+      ONE; 
+
+      Serial.println("One ");
+
+      break;
 
     case 2: 
+
+      TWO; 
+
+      Serial.println("Two ");
+
+      break;
+      
+    case 14: 
 
       TWO; 
 
@@ -525,8 +673,24 @@ void displaytime(void){
       Serial.println("Three ");
 
       break;
+      
+    case 15: 
+
+      THREE; 
+
+      Serial.println("Three ");
+
+      break;
 
     case 4: 
+
+      FOUR; 
+
+      Serial.println("Four ");
+
+      break;
+      
+    case 16: 
 
       FOUR; 
 
@@ -541,8 +705,24 @@ void displaytime(void){
       Serial.println("Five ");
 
       break;
+    
+    case 17: 
+
+      HFIVE; 
+
+      Serial.println("Five ");
+
+      break;
 
     case 6: 
+
+      SIX; 
+
+      Serial.println("Six ");
+
+      break;
+      
+    case 18: 
 
       SIX; 
 
@@ -557,8 +737,24 @@ void displaytime(void){
       Serial.println("Seven ");
 
       break;
+      
+    case 19: 
+
+      SEVEN; 
+
+      Serial.println("Seven ");
+
+      break;
 
     case 8: 
+
+      EIGHT; 
+
+      Serial.println("Eight ");
+
+      break;
+      
+    case 20: 
 
       EIGHT; 
 
@@ -573,8 +769,24 @@ void displaytime(void){
       Serial.println("Nine ");
 
       break;
+      
+    case 21: 
+
+      NINE; 
+
+      Serial.println("Nine ");
+
+      break;
 
     case 10: 
+
+      HTEN; 
+
+      Serial.println("Ten ");
+
+      break;
+      
+    case 22: 
 
       HTEN; 
 
@@ -589,8 +801,24 @@ void displaytime(void){
       Serial.println("Eleven ");
 
       break;
+      
+    case 23: 
+
+      ELEVEN; 
+
+      Serial.println("Eleven ");
+
+      break;
 
     case 12: 
+
+      TWELVE; 
+
+      Serial.println("Twelve ");
+
+      break;
+      
+    case 0: 
 
       TWELVE; 
 
@@ -620,15 +848,31 @@ void displaytime(void){
 
         TWO; 
 
-       Serial.println("Two ");
+        Serial.println("Two ");
 
-       break;
+        break;
+       
+     case 13: 
+
+        TWO; 
+
+        Serial.println("Two ");
+
+        break;
 
       case 2: 
 
         THREE; 
 
-      Serial.println("Three ");
+        Serial.println("Three ");
+
+        break;
+        
+      case 14: 
+
+        THREE; 
+
+        Serial.println("Three ");
 
         break;
 
@@ -636,7 +880,15 @@ void displaytime(void){
 
         FOUR; 
 
-      Serial.println("Four ");
+        Serial.println("Four ");
+
+        break;
+        
+      case 15: 
+
+        FOUR; 
+
+        Serial.println("Four ");
 
         break;
 
@@ -644,7 +896,15 @@ void displaytime(void){
 
         HFIVE; 
 
-      Serial.println("Five ");
+        Serial.println("Five ");
+
+        break;
+        
+      case 16: 
+
+        HFIVE; 
+
+        Serial.println("Five ");
 
         break;
 
@@ -652,7 +912,15 @@ void displaytime(void){
 
         SIX; 
 
-      Serial.println("Six ");
+        Serial.println("Six ");
+
+        break;
+        
+      case 17: 
+
+        SIX; 
+
+        Serial.println("Six ");
 
         break;
 
@@ -660,7 +928,15 @@ void displaytime(void){
 
         SEVEN; 
 
-      Serial.println("Seven ");
+        Serial.println("Seven ");
+
+        break;
+        
+      case 18: 
+
+        SEVEN; 
+
+        Serial.println("Seven ");
 
         break;
 
@@ -668,7 +944,15 @@ void displaytime(void){
 
         EIGHT; 
 
-      Serial.println("Eight ");
+        Serial.println("Eight ");
+
+        break;
+        
+      case 19: 
+
+        EIGHT; 
+
+        Serial.println("Eight ");
 
         break;
 
@@ -676,7 +960,15 @@ void displaytime(void){
 
         NINE; 
 
-      Serial.println("Nine ");
+        Serial.println("Nine ");
+
+        break;
+        
+      case 20: 
+
+        NINE; 
+
+        Serial.println("Nine ");
 
         break;
 
@@ -684,7 +976,15 @@ void displaytime(void){
 
         HTEN; 
 
-      Serial.println("Ten ");
+        Serial.println("Ten ");
+
+        break;
+        
+      case 21: 
+
+        HTEN; 
+
+        Serial.println("Ten ");
 
         break;
 
@@ -692,7 +992,15 @@ void displaytime(void){
 
         ELEVEN; 
 
-      Serial.println("Eleven ");
+        Serial.println("Eleven ");
+
+        break;
+        
+      case 22: 
+
+        ELEVEN; 
+
+        Serial.println("Eleven ");
 
         break;
 
@@ -700,7 +1008,15 @@ void displaytime(void){
 
         TWELVE; 
 
-      Serial.println("Twelve ");
+        Serial.println("Twelve ");
+
+        break;
+        
+      case 23: 
+
+        TWELVE; 
+
+        Serial.println("Twelve ");
 
         break;
 
@@ -708,7 +1024,15 @@ void displaytime(void){
 
         ONE; 
 
-      Serial.println("One ");
+        Serial.println("One ");
+
+        break;
+        
+      case 0: 
+
+        ONE; 
+
+        Serial.println("One ");
 
         break;
 
@@ -765,46 +1089,22 @@ void incrementtime(void){
 void loop(void)
 
 { 
+  
+  delay(100);
 
   /*analogWrite(PWMPin, analogRead(0)/4); //enable dimming via potentiometer or photoresistor*/
 
   analogWrite(PWMPin, 0); //manually set brightness level
 
+
+
+  //incrementtime();
+
+  readDS3231time(&second, &minute, &hour, &dayOfWeek, &dayOfMonth, &month, &year);
   
-
-    // heart of the timer - keep looking at the millisecond timer on the Arduino
-
-    // and increment the seconds counter every 1000 ms
-
-    if ( millis() - msTick >999) {
-
-        msTick=millis();
-
-        second+=30;
-
-        // Flash the onboard Pin13 Led so we know something is hapening!
-
-        digitalWrite(13,HIGH);
-
-        delay(100);
-
-        digitalWrite(13,LOW);    
-
-    }
-
-    
-
-    //test to see if we need to increment the time counters
-
-    if (second==60) 
-
-    {
-
-      incrementtime();
-
-      displaytime();
-
-    }
+  displayTime();
+  
+  displaytime();
 
 
 
@@ -824,7 +1124,9 @@ void loop(void)
 
       second=0;
 
-      incrementtime();
+      //incrementtime();
+      
+      setDS3231time(second, minute, hour, dayOfWeek, dayOfMonth, month, year);
 
       second++;  // Increment the second counter to ensure that the name
 
@@ -852,7 +1154,9 @@ void loop(void)
 
       }
 
-      incrementtime();
+      //incrementtime();
+      
+      setDS3231time(second, minute, hour, dayOfWeek, dayOfMonth, month, year);
 
       second++;  // Increment the second counter to ensure that the name
 
