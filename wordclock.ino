@@ -199,6 +199,8 @@ int MinuteButtonPin=2;
 
 int HourButtonPin=3;
 
+int BriteKnobPin=2; // analog read
+
 int PWMPin = 9;
 
 
@@ -216,7 +218,7 @@ void setup()
   Wire.begin();
   // set the initial time here:
   // DS3231 seconds, minutes, hours, day, date, month, year
-  setDS3231time(30,50,0,5,14,5,15);
+  //setDS3231time(30,57,19,5,14,5,15);
   
   // initialize the appropriate pins as outputs:
 
@@ -522,7 +524,15 @@ void displaytime(void){
 
       ONE; 
 
-      Serial.print("One ");
+      Serial.println("One ");
+
+      break;
+      
+    case 13: 
+
+      ONE; 
+
+      Serial.println("One ");
 
       break;
 
@@ -530,7 +540,15 @@ void displaytime(void){
 
       TWO; 
 
-      Serial.print("Two ");
+      Serial.println("Two ");
+
+      break;
+      
+    case 14: 
+
+      TWO; 
+
+      Serial.println("Two ");
 
       break;
 
@@ -538,7 +556,15 @@ void displaytime(void){
 
       THREE; 
 
-      Serial.print("Three ");
+      Serial.println("Three ");
+
+      break;
+      
+    case 15: 
+
+      THREE; 
+
+      Serial.println("Three ");
 
       break;
 
@@ -546,7 +572,15 @@ void displaytime(void){
 
       FOUR; 
 
-      Serial.print("Four ");
+      Serial.println("Four ");
+
+      break;
+      
+    case 16: 
+
+      FOUR; 
+
+      Serial.println("Four ");
 
       break;
 
@@ -554,7 +588,15 @@ void displaytime(void){
 
       HFIVE; 
 
-      Serial.print("Five ");
+      Serial.println("Five ");
+
+      break;
+    
+    case 17: 
+
+      HFIVE; 
+
+      Serial.println("Five ");
 
       break;
 
@@ -562,7 +604,15 @@ void displaytime(void){
 
       SIX; 
 
-      Serial.print("Six ");
+      Serial.println("Six ");
+
+      break;
+      
+    case 18: 
+
+      SIX; 
+
+      Serial.println("Six ");
 
       break;
 
@@ -570,7 +620,15 @@ void displaytime(void){
 
       SEVEN; 
 
-      Serial.print("Seven ");
+      Serial.println("Seven ");
+
+      break;
+      
+    case 19: 
+
+      SEVEN; 
+
+      Serial.println("Seven ");
 
       break;
 
@@ -578,7 +636,15 @@ void displaytime(void){
 
       EIGHT; 
 
-      Serial.print("Eight ");
+      Serial.println("Eight ");
+
+      break;
+      
+    case 20: 
+
+      EIGHT; 
+
+      Serial.println("Eight ");
 
       break;
 
@@ -586,7 +652,15 @@ void displaytime(void){
 
       NINE; 
 
-      Serial.print("Nine ");
+      Serial.println("Nine ");
+
+      break;
+      
+    case 21: 
+
+      NINE; 
+
+      Serial.println("Nine ");
 
       break;
 
@@ -594,7 +668,15 @@ void displaytime(void){
 
       HTEN; 
 
-      Serial.print("Ten ");
+      Serial.println("Ten ");
+
+      break;
+      
+    case 22: 
+
+      HTEN; 
+
+      Serial.println("Ten ");
 
       break;
 
@@ -602,7 +684,15 @@ void displaytime(void){
 
       ELEVEN; 
 
-      Serial.print("Eleven ");
+      Serial.println("Eleven ");
+
+      break;
+      
+    case 23: 
+
+      ELEVEN; 
+
+      Serial.println("Eleven ");
 
       break;
 
@@ -610,7 +700,15 @@ void displaytime(void){
 
       TWELVE; 
 
-      Serial.print("Twelve ");
+      Serial.println("Twelve ");
+
+      break;
+      
+    case 0: 
+
+      TWELVE; 
+
+      Serial.println("Twelve ");
 
       break;
 
@@ -1108,63 +1206,63 @@ void loop(void)
 
 
 
-    // test to see if the Minute Button is being held down
-
-    // for time setting
-
-    if ( (digitalRead(MinuteButtonPin) ==1 ) && second!=1) 
-
-      // the Minute Button is down and it has been more 
-
-      // than one second since we last looked
-
-    {
-
-      minute=(((minute/5)*5) +5); 
-
-      second=0;
-
-      //incrementtime();
-      
-      setDS3231time(second, minute, hour, dayOfWeek, dayOfMonth, month, year);
-
-      second++;  // Increment the second counter to ensure that the name
-
-      // flash doesnt happen when setting time
-
-      displaytime();
-
-    }
-
-
-
-    // test to see if the Hour Button is being held down
-
-    // for time setting
-
-    if ((digitalRead(HourButtonPin)==1 ) && second!=1) 
-
-    {
-
-      minute = (minute/5)*5;  //round minute down to previous 5 min interval
-
-      if (++hour == 13) {
-
-        hour=1;  
-
-      }
-
-      //incrementtime();
-      
-      setDS3231time(second, minute, hour, dayOfWeek, dayOfMonth, month, year);
-
-      second++;  // Increment the second counter to ensure that the name
-
-      // flash doesnt happen when setting time  
-
-      displaytime();
-
-    }
+//    // test to see if the Minute Button is being held down
+//
+//    // for time setting
+//
+//    if ( (digitalRead(MinuteButtonPin) ==1 ) && second!=1) 
+//
+//      // the Minute Button is down and it has been more 
+//
+//      // than one second since we last looked
+//
+//    {
+//
+//      minute=(((minute/5)*5) +5); 
+//
+//      second=0;
+//
+//      //incrementtime();
+//      
+//      setDS3231time(second, minute, hour, dayOfWeek, dayOfMonth, month, year);
+//
+//      second++;  // Increment the second counter to ensure that the name
+//
+//      // flash doesnt happen when setting time
+//
+//      displaytime();
+//
+//    }
+//
+//
+//
+//    // test to see if the Hour Button is being held down
+//
+//    // for time setting
+//
+//    if ((digitalRead(HourButtonPin)==1 ) && second!=1) 
+//
+//    {
+//
+//      minute = (minute/5)*5;  //round minute down to previous 5 min interval
+//
+//      if (++hour == 13) {
+//
+//        hour=1;  
+//
+//      }
+//
+//      //incrementtime();
+//      
+//      setDS3231time(second, minute, hour, dayOfWeek, dayOfMonth, month, year);
+//
+//      second++;  // Increment the second counter to ensure that the name
+//
+//      // flash doesnt happen when setting time  
+//
+//      displaytime();
+//
+//    }
 
 
 
