@@ -1,3 +1,5 @@
+#include <EEPROM.h>
+
 
 // second part
 
@@ -86,14 +88,19 @@
 #define PIN_HAPPY 2
 #define PIN_BIRTH 3
 #define PIN_DAY 4
-#define PIN_RICK 5
-#define PIN_SUSAN 6
+#define PIN_RICK_PAM 6
+#define PIN_SUSAN_SONNY 5
 
 #define HAPPYLEN 5
 #define BIRTHLEN 5
 #define DAYLEN 3
-#define RICKLEN 4
-#define SUSANLEN 5
+#define RICK_PAM_LEN 4
+#define SUSAN_SONNY_LEN 5
+
+#define RICK_PAM_BDAY_M 3
+#define RICK_PAM_BDAY_D 21
+#define SUSAN_SONNY_BDAY_M 10
+#define SUSAN_SONNY_BDAY_D 11
 
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)
@@ -105,8 +112,8 @@
 Adafruit_NeoPixel stripHappy = Adafruit_NeoPixel(HAPPYLEN, PIN_HAPPY, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel stripBirth = Adafruit_NeoPixel(BIRTHLEN, PIN_BIRTH, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel stripDay = Adafruit_NeoPixel(DAYLEN, PIN_DAY, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel stripRick = Adafruit_NeoPixel(RICKLEN, PIN_RICK, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel stripSusan = Adafruit_NeoPixel(SUSANLEN, PIN_SUSAN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel stripRickPam = Adafruit_NeoPixel(RICK_PAM_LEN, PIN_RICK_PAM, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel stripSusanSonny = Adafruit_NeoPixel(SUSAN_SONNY_LEN, PIN_SUSAN_SONNY, NEO_GRB + NEO_KHZ800);
 
 // IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
 // pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
@@ -218,6 +225,8 @@ char Display1=0, Display2=0, Display3=0;
 //int BriteKnobPin=2; // analog read
 
 
+boolean DST = 0;
+
 void setup()
 
 {
@@ -228,16 +237,17 @@ void setup()
   stripBirth.show(); // Initialize all pixels to 'off'
   stripDay.begin();
   stripDay.show(); // Initialize all pixels to 'off'
-  stripRick.begin();
-  stripRick.show(); // Initialize all pixels to 'off'
-  stripSusan.begin();
-  stripSusan.show(); // Initialize all pixels to 'off'
+  stripRickPam.begin();
+  stripRickPam.show(); // Initialize all pixels to 'off'
+  stripSusanSonny.begin();
+  stripSusanSonny.show(); // Initialize all pixels to 'off'
 
   // initialise the hardware	
   Wire.begin();
   // set the initial time here:
   // DS3231 seconds, minutes, hours, day, date, month, year
-  //setDS3231time(30,17,17,7,16,5,15);
+  //setDS3231time(40,12,13,1,13,5,18);
+  //EEPROM.write(0,1);
   
   // initialize the appropriate pins as outputs:
 
@@ -263,11 +273,13 @@ void setup()
 
   Serial.begin(19200);
 
-
+  DST = EEPROM.read(0);
 
   msTick=millis();      // Initialise the msTick counter
 
   displaytime();        // display the current time
+  displayTime();
+
 
 }
 
@@ -543,7 +555,7 @@ void displaytime(void){
 
       ONE; 
 
-      Serial.println("One ");
+      Serial.print("One ");
 
       break;
       
@@ -551,7 +563,7 @@ void displaytime(void){
 
       ONE; 
 
-      Serial.println("One ");
+      Serial.print("One ");
 
       break;
 
@@ -559,7 +571,7 @@ void displaytime(void){
 
       TWO; 
 
-      Serial.println("Two ");
+      Serial.print("Two ");
 
       break;
       
@@ -567,7 +579,7 @@ void displaytime(void){
 
       TWO; 
 
-      Serial.println("Two ");
+      Serial.print("Two ");
 
       break;
 
@@ -575,7 +587,7 @@ void displaytime(void){
 
       THREE; 
 
-      Serial.println("Three ");
+      Serial.print("Three ");
 
       break;
       
@@ -583,7 +595,7 @@ void displaytime(void){
 
       THREE; 
 
-      Serial.println("Three ");
+      Serial.print("Three ");
 
       break;
 
@@ -591,7 +603,7 @@ void displaytime(void){
 
       FOUR; 
 
-      Serial.println("Four ");
+      Serial.print("Four ");
 
       break;
       
@@ -599,7 +611,7 @@ void displaytime(void){
 
       FOUR; 
 
-      Serial.println("Four ");
+      Serial.print("Four ");
 
       break;
 
@@ -607,7 +619,7 @@ void displaytime(void){
 
       HFIVE; 
 
-      Serial.println("Five ");
+      Serial.print("Five ");
 
       break;
     
@@ -615,7 +627,7 @@ void displaytime(void){
 
       HFIVE; 
 
-      Serial.println("Five ");
+      Serial.print("Five ");
 
       break;
 
@@ -623,7 +635,7 @@ void displaytime(void){
 
       SIX; 
 
-      Serial.println("Six ");
+      Serial.print("Six ");
 
       break;
       
@@ -631,7 +643,7 @@ void displaytime(void){
 
       SIX; 
 
-      Serial.println("Six ");
+      Serial.print("Six ");
 
       break;
 
@@ -639,7 +651,7 @@ void displaytime(void){
 
       SEVEN; 
 
-      Serial.println("Seven ");
+      Serial.print("Seven ");
 
       break;
       
@@ -647,7 +659,7 @@ void displaytime(void){
 
       SEVEN; 
 
-      Serial.println("Seven ");
+      Serial.print("Seven ");
 
       break;
 
@@ -655,7 +667,7 @@ void displaytime(void){
 
       EIGHT; 
 
-      Serial.println("Eight ");
+      Serial.print("Eight ");
 
       break;
       
@@ -663,7 +675,7 @@ void displaytime(void){
 
       EIGHT; 
 
-      Serial.println("Eight ");
+      Serial.print("Eight ");
 
       break;
 
@@ -671,7 +683,7 @@ void displaytime(void){
 
       NINE; 
 
-      Serial.println("Nine ");
+      Serial.print("Nine ");
 
       break;
       
@@ -679,7 +691,7 @@ void displaytime(void){
 
       NINE; 
 
-      Serial.println("Nine ");
+      Serial.print("Nine ");
 
       break;
 
@@ -687,7 +699,7 @@ void displaytime(void){
 
       HTEN; 
 
-      Serial.println("Ten ");
+      Serial.print("Ten ");
 
       break;
       
@@ -695,7 +707,7 @@ void displaytime(void){
 
       HTEN; 
 
-      Serial.println("Ten ");
+      Serial.print("Ten ");
 
       break;
 
@@ -703,7 +715,7 @@ void displaytime(void){
 
       ELEVEN; 
 
-      Serial.println("Eleven ");
+      Serial.print("Eleven ");
 
       break;
       
@@ -711,7 +723,7 @@ void displaytime(void){
 
       ELEVEN; 
 
-      Serial.println("Eleven ");
+      Serial.print("Eleven ");
 
       break;
 
@@ -719,7 +731,7 @@ void displaytime(void){
 
       TWELVE; 
 
-      Serial.println("Twelve ");
+      Serial.print("Twelve ");
 
       break;
       
@@ -727,7 +739,7 @@ void displaytime(void){
 
       TWELVE; 
 
-      Serial.println("Twelve ");
+      Serial.print("Twelve ");
 
       break;
 
@@ -735,7 +747,7 @@ void displaytime(void){
 
   OCLOCK;
 
-  Serial.println("O'Clock");
+  Serial.print("O'Clock");
 
   }
 
@@ -755,7 +767,7 @@ void displaytime(void){
 
       ONE; 
 
-      Serial.println("One ");
+      Serial.print("One ");
 
       break;
       
@@ -763,7 +775,7 @@ void displaytime(void){
 
       ONE; 
 
-      Serial.println("One ");
+      Serial.print("One ");
 
       break;
 
@@ -771,7 +783,7 @@ void displaytime(void){
 
       TWO; 
 
-      Serial.println("Two ");
+      Serial.print("Two ");
 
       break;
       
@@ -779,7 +791,7 @@ void displaytime(void){
 
       TWO; 
 
-      Serial.println("Two ");
+      Serial.print("Two ");
 
       break;
 
@@ -787,7 +799,7 @@ void displaytime(void){
 
       THREE; 
 
-      Serial.println("Three ");
+      Serial.print("Three ");
 
       break;
       
@@ -795,7 +807,7 @@ void displaytime(void){
 
       THREE; 
 
-      Serial.println("Three ");
+      Serial.print("Three ");
 
       break;
 
@@ -803,7 +815,7 @@ void displaytime(void){
 
       FOUR; 
 
-      Serial.println("Four ");
+      Serial.print("Four ");
 
       break;
       
@@ -811,7 +823,7 @@ void displaytime(void){
 
       FOUR; 
 
-      Serial.println("Four ");
+      Serial.print("Four ");
 
       break;
 
@@ -819,7 +831,7 @@ void displaytime(void){
 
       HFIVE; 
 
-      Serial.println("Five ");
+      Serial.print("Five ");
 
       break;
     
@@ -827,7 +839,7 @@ void displaytime(void){
 
       HFIVE; 
 
-      Serial.println("Five ");
+      Serial.print("Five ");
 
       break;
 
@@ -835,7 +847,7 @@ void displaytime(void){
 
       SIX; 
 
-      Serial.println("Six ");
+      Serial.print("Six ");
 
       break;
       
@@ -843,7 +855,7 @@ void displaytime(void){
 
       SIX; 
 
-      Serial.println("Six ");
+      Serial.print("Six ");
 
       break;
 
@@ -851,7 +863,7 @@ void displaytime(void){
 
       SEVEN; 
 
-      Serial.println("Seven ");
+      Serial.print("Seven ");
 
       break;
       
@@ -859,7 +871,7 @@ void displaytime(void){
 
       SEVEN; 
 
-      Serial.println("Seven ");
+      Serial.print("Seven ");
 
       break;
 
@@ -867,7 +879,7 @@ void displaytime(void){
 
       EIGHT; 
 
-      Serial.println("Eight ");
+      Serial.print("Eight ");
 
       break;
       
@@ -875,7 +887,7 @@ void displaytime(void){
 
       EIGHT; 
 
-      Serial.println("Eight ");
+      Serial.print("Eight ");
 
       break;
 
@@ -883,7 +895,7 @@ void displaytime(void){
 
       NINE; 
 
-      Serial.println("Nine ");
+      Serial.print("Nine ");
 
       break;
       
@@ -891,7 +903,7 @@ void displaytime(void){
 
       NINE; 
 
-      Serial.println("Nine ");
+      Serial.print("Nine ");
 
       break;
 
@@ -899,7 +911,7 @@ void displaytime(void){
 
       HTEN; 
 
-      Serial.println("Ten ");
+      Serial.print("Ten ");
 
       break;
       
@@ -907,7 +919,7 @@ void displaytime(void){
 
       HTEN; 
 
-      Serial.println("Ten ");
+      Serial.print("Ten ");
 
       break;
 
@@ -915,7 +927,7 @@ void displaytime(void){
 
       ELEVEN; 
 
-      Serial.println("Eleven ");
+      Serial.print("Eleven ");
 
       break;
       
@@ -923,7 +935,7 @@ void displaytime(void){
 
       ELEVEN; 
 
-      Serial.println("Eleven ");
+      Serial.print("Eleven ");
 
       break;
 
@@ -931,7 +943,7 @@ void displaytime(void){
 
       TWELVE; 
 
-      Serial.println("Twelve ");
+      Serial.print("Twelve ");
 
       break;
       
@@ -939,7 +951,7 @@ void displaytime(void){
 
       TWELVE; 
 
-      Serial.println("Twelve ");
+      Serial.print("Twelve ");
 
       break;
 
@@ -965,7 +977,7 @@ void displaytime(void){
 
         TWO; 
 
-        Serial.println("Two ");
+        Serial.print("Two ");
 
         break;
        
@@ -973,7 +985,7 @@ void displaytime(void){
 
         TWO; 
 
-        Serial.println("Two ");
+        Serial.print("Two ");
 
         break;
 
@@ -981,7 +993,7 @@ void displaytime(void){
 
         THREE; 
 
-        Serial.println("Three ");
+        Serial.print("Three ");
 
         break;
         
@@ -989,7 +1001,7 @@ void displaytime(void){
 
         THREE; 
 
-        Serial.println("Three ");
+        Serial.print("Three ");
 
         break;
 
@@ -997,7 +1009,7 @@ void displaytime(void){
 
         FOUR; 
 
-        Serial.println("Four ");
+        Serial.print("Four ");
 
         break;
         
@@ -1005,7 +1017,7 @@ void displaytime(void){
 
         FOUR; 
 
-        Serial.println("Four ");
+        Serial.print("Four ");
 
         break;
 
@@ -1013,7 +1025,7 @@ void displaytime(void){
 
         HFIVE; 
 
-        Serial.println("Five ");
+        Serial.print("Five ");
 
         break;
         
@@ -1021,7 +1033,7 @@ void displaytime(void){
 
         HFIVE; 
 
-        Serial.println("Five ");
+        Serial.print("Five ");
 
         break;
 
@@ -1029,7 +1041,7 @@ void displaytime(void){
 
         SIX; 
 
-        Serial.println("Six ");
+        Serial.print("Six ");
 
         break;
         
@@ -1037,7 +1049,7 @@ void displaytime(void){
 
         SIX; 
 
-        Serial.println("Six ");
+        Serial.print("Six ");
 
         break;
 
@@ -1045,7 +1057,7 @@ void displaytime(void){
 
         SEVEN; 
 
-        Serial.println("Seven ");
+        Serial.print("Seven ");
 
         break;
         
@@ -1053,7 +1065,7 @@ void displaytime(void){
 
         SEVEN; 
 
-        Serial.println("Seven ");
+        Serial.print("Seven ");
 
         break;
 
@@ -1061,7 +1073,7 @@ void displaytime(void){
 
         EIGHT; 
 
-        Serial.println("Eight ");
+        Serial.print("Eight ");
 
         break;
         
@@ -1069,7 +1081,7 @@ void displaytime(void){
 
         EIGHT; 
 
-        Serial.println("Eight ");
+        Serial.print("Eight ");
 
         break;
 
@@ -1085,7 +1097,7 @@ void displaytime(void){
 
         NINE; 
 
-        Serial.println("Nine ");
+        Serial.print("Nine ");
 
         break;
 
@@ -1093,7 +1105,7 @@ void displaytime(void){
 
         HTEN; 
 
-        Serial.println("Ten ");
+        Serial.print("Ten ");
 
         break;
         
@@ -1101,7 +1113,7 @@ void displaytime(void){
 
         HTEN; 
 
-        Serial.println("Ten ");
+        Serial.print("Ten ");
 
         break;
 
@@ -1109,7 +1121,7 @@ void displaytime(void){
 
         ELEVEN; 
 
-        Serial.println("Eleven ");
+        Serial.print("Eleven ");
 
         break;
         
@@ -1117,7 +1129,7 @@ void displaytime(void){
 
         ELEVEN; 
 
-        Serial.println("Eleven ");
+        Serial.print("Eleven ");
 
         break;
 
@@ -1125,7 +1137,7 @@ void displaytime(void){
 
         TWELVE; 
 
-        Serial.println("Twelve ");
+        Serial.print("Twelve ");
 
         break;
         
@@ -1133,7 +1145,7 @@ void displaytime(void){
 
         TWELVE; 
 
-        Serial.println("Twelve ");
+        Serial.print("Twelve ");
 
         break;
 
@@ -1141,7 +1153,7 @@ void displaytime(void){
 
         ONE; 
 
-        Serial.println("One ");
+        Serial.print("One ");
 
         break;
         
@@ -1149,13 +1161,14 @@ void displaytime(void){
 
         ONE; 
 
-        Serial.println("One ");
+        Serial.print("One ");
 
         break;
 
       }
 
     }
+    Serial.println(" ");
 
    WriteLEDs();
 
@@ -1201,99 +1214,99 @@ void incrementtime(void){
 
 
 // rainbow for the happy birthday messages
-void rainbowCycleRick(uint8_t wait) {
+void rainbowCycleRickPam(uint8_t wait) {
   uint16_t i, j;
 
   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
     for(i=0; i< stripHappy.numPixels(); i++) {
-      stripHappy.setPixelColor(i, WheelRick(((i * 256 / stripHappy.numPixels()) + j) & 255));
+      stripHappy.setPixelColor(i, WheelRickPam(((i * 256 / stripHappy.numPixels()) + j) & 255));
     }
     stripHappy.show();
     for(i=0; i< stripHappy.numPixels(); i++) {
-      stripBirth.setPixelColor(i, WheelRick(((i * 256 / stripBirth.numPixels()) + j) & 255));
+      stripBirth.setPixelColor(i, WheelRickPam(((i * 256 / stripBirth.numPixels()) + j) & 255));
     }
     stripBirth.show();
     for(i=0; i< stripHappy.numPixels(); i++) {
-      stripDay.setPixelColor(i, WheelRick(((i * 256 / stripDay.numPixels()) + j) & 255));
+      stripDay.setPixelColor(i, WheelRickPam(((i * 256 / stripDay.numPixels()) + j) & 255));
     }
     stripDay.show();
     for(i=0; i< stripHappy.numPixels(); i++) {
-      stripRick.setPixelColor(i, WheelRick(((i * 256 / stripRick.numPixels()) + j) & 255));
+      stripRickPam.setPixelColor(i, WheelRickPam(((i * 256 / stripRickPam.numPixels()) + j) & 255));
     }
-    stripRick.show();
+    stripRickPam.show();
     delay(wait);
   }
 }
 
 // Input a value 0 to 255 to get a color value.
 // The colours are a transition r - g - b - back to r.
-uint32_t WheelRick(byte WheelPos) {
+uint32_t WheelRickPam(byte WheelPos) {
   WheelPos = 255 - WheelPos;
   if(WheelPos < 85) {
    return stripHappy.Color(255 - WheelPos * 3, 0, WheelPos * 3);
    return stripBirth.Color(255 - WheelPos * 3, 0, WheelPos * 3);
    return stripDay.Color(255 - WheelPos * 3, 0, WheelPos * 3);
-   return stripRick.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+   return stripRickPam.Color(255 - WheelPos * 3, 0, WheelPos * 3);
   } else if(WheelPos < 170) {
     WheelPos -= 85;
    return stripHappy.Color(0, WheelPos * 3, 255 - WheelPos * 3);
    return stripBirth.Color(0, WheelPos * 3, 255 - WheelPos * 3);
    return stripDay.Color(0, WheelPos * 3, 255 - WheelPos * 3);
-   return stripRick.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+   return stripRickPam.Color(0, WheelPos * 3, 255 - WheelPos * 3);
   } else {
    WheelPos -= 170;
    return stripHappy.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
    return stripBirth.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
    return stripDay.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
-   return stripRick.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+   return stripRickPam.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
   }
 }
 
-void rainbowCycleSusan(uint8_t wait) {
+void rainbowCycleSusanSonny(uint8_t wait) {
   uint16_t i, j;
 
   for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
     for(i=0; i< stripHappy.numPixels(); i++) {
-      stripHappy.setPixelColor(i, WheelRick(((i * 256 / stripHappy.numPixels()) + j) & 255));
+      stripHappy.setPixelColor(i, WheelSusanSonny(((i * 256 / stripHappy.numPixels()) + j) & 255));
     }
     stripHappy.show();
     for(i=0; i< stripHappy.numPixels(); i++) {
-      stripBirth.setPixelColor(i, WheelRick(((i * 256 / stripBirth.numPixels()) + j) & 255));
+      stripBirth.setPixelColor(i, WheelSusanSonny(((i * 256 / stripBirth.numPixels()) + j) & 255));
     }
     stripBirth.show();
     for(i=0; i< stripHappy.numPixels(); i++) {
-      stripDay.setPixelColor(i, WheelRick(((i * 256 / stripDay.numPixels()) + j) & 255));
+      stripDay.setPixelColor(i, WheelSusanSonny(((i * 256 / stripDay.numPixels()) + j) & 255));
     }
     stripDay.show();
     for(i=0; i< stripHappy.numPixels(); i++) {
-      stripSusan.setPixelColor(i, WheelRick(((i * 256 / stripSusan.numPixels()) + j) & 255));
+      stripSusanSonny.setPixelColor(i, WheelSusanSonny(((i * 256 / stripSusanSonny.numPixels()) + j) & 255));
     }
-    stripSusan.show();
+    stripSusanSonny.show();
     delay(wait);
   }
 }
 
 // Input a value 0 to 255 to get a color value.
 // The colours are a transition r - g - b - back to r.
-uint32_t WheelSusan(byte WheelPos) {
+uint32_t WheelSusanSonny(byte WheelPos) {
   WheelPos = 255 - WheelPos;
   if(WheelPos < 85) {
    return stripHappy.Color(255 - WheelPos * 3, 0, WheelPos * 3);
    return stripBirth.Color(255 - WheelPos * 3, 0, WheelPos * 3);
    return stripDay.Color(255 - WheelPos * 3, 0, WheelPos * 3);
-   return stripSusan.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+   return stripSusanSonny.Color(255 - WheelPos * 3, 0, WheelPos * 3);
   } else if(WheelPos < 170) {
     WheelPos -= 85;
    return stripHappy.Color(0, WheelPos * 3, 255 - WheelPos * 3);
    return stripBirth.Color(0, WheelPos * 3, 255 - WheelPos * 3);
    return stripDay.Color(0, WheelPos * 3, 255 - WheelPos * 3);
-   return stripSusan.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+   return stripSusanSonny.Color(0, WheelPos * 3, 255 - WheelPos * 3);
   } else {
    WheelPos -= 170;
    return stripHappy.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
    return stripBirth.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
    return stripDay.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
-   return stripSusan.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+   return stripSusanSonny.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
   }
 }
 
@@ -1303,7 +1316,7 @@ void loop(void)
 
 { 
   
-  delay(100);
+  delay(500);
 
   /*analogWrite(PWMPin, analogRead(0)/4); //enable dimming via potentiometer or photoresistor*/
 
@@ -1317,62 +1330,81 @@ void loop(void)
   
   displaytime();
   
-  if(dayOfMonth == 15 & month == 8)
+  if(dayOfMonth == RICK_PAM_BDAY_D & month == RICK_PAM_BDAY_M)
   {
-    rainbowCycleRick(10);
+    rainbowCycleRickPam(10);
   }
-  if(dayOfMonth == 22 & month == 9)
+  if(dayOfMonth == SUSAN_SONNY_BDAY_D & month == SUSAN_SONNY_BDAY_M)
   {
-    rainbowCycleSusan(10);
+    rainbowCycleSusanSonny(10);
   }
+
+
+  // DST
+
+
+  if (dayOfWeek == 1 && month == 3 && dayOfMonth >=8 && hour == 2 && DST == 0) {
+    hour = 3;
+    setDS3231time(second, minute, hour, dayOfWeek, dayOfMonth, month, year);
+    Serial.println("DST enabled");
+    DST = 1;
+    EEPROM.update(0,DST);
+  }
+
+  if (dayOfWeek == 1 && month == 11 && dayOfMonth <=7 && hour == 3 && DST == 1) {
+    hour = 2;
+    setDS3231time(second, minute, hour, dayOfWeek, dayOfMonth, month, year);
+    Serial.println("DST disabled");
+    DST = 0;
+    EEPROM.update(0,DST);
+  }
+  
 
     // test to see if the Minute Button is being held down
 
     // for time setting
 
-    if ( (digitalRead(MinuteButtonPin) ==1 ) && second!=1) 
-
-      // the Minute Button is down and it has been more 
-
-      // than one second since we last looked
-
-    {
-
-      minute=(((minute/5)*5) +5)%60; 
-
-      second=0;
-
-      second++;  // Increment the second counter to ensure that the name
-
-      // flash doesnt happen when setting time
-      
-      setDS3231time(second, minute, hour, dayOfWeek, dayOfMonth, month, year);
-      
-      displaytime();
-
-    }
-
-
-
-    // test to see if the Hour Button is being held down
-
-    // for time setting
-
-    if ((digitalRead(HourButtonPin)==1 ) && second!=1) 
-
-    {
-
-      minute = (minute/5)*5;  //round minute down to previous 5 min interval
-
-      hour = (hour + 1) % 24;
-      second++;  // Increment the second counter to ensure that the name
-
-      // flash doesnt happen when setting time  
-      setDS3231time(second, minute, hour, dayOfWeek, dayOfMonth, month, year);
-
-      displaytime();
-
-    }
+//    if ( (digitalRead(MinuteButtonPin) ==1 ) && second > 1) 
+//
+//      // the Minute Button is down and it has been more 
+//
+//      // than one second since we last looked
+//
+//    {
+//
+//      minute=(((minute/5)*5) +5)%60; 
+//
+//      second=1;  // Increment the second counter to ensure that the name
+//
+//      // flash doesnt happen when setting time
+//      
+//      setDS3231time(second, minute, hour, dayOfWeek, dayOfMonth, month, year);
+//      
+//      displaytime();
+//
+//    }
+//
+//
+//
+//    // test to see if the Hour Button is being held down
+//
+//    // for time setting
+//
+//    if ((digitalRead(HourButtonPin)==1 ) && second > 1) 
+//
+//    {
+//
+//      minute = (minute/5)*5;  //round minute down to previous 5 min interval
+//
+//      hour = (hour + 1) % 24;
+//      second = 1;  // Increment the second counter to ensure that the name
+//
+//      // flash doesnt happen when setting time  
+//      setDS3231time(second, minute, hour, dayOfWeek, dayOfMonth, month, year);
+//
+//      displaytime();
+//
+//    }
 
 
 
